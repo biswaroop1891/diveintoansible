@@ -1,0 +1,27 @@
+[main]
+rhel-server ansible_connection=local ## Variable at host level -- HOSTVARS
+
+[centos]
+centos1 
+
+[centos:vars]           ## variable for 'centos' group -- GROUPVARS
+ansible_user=root
+
+[ubuntu]
+centos2 ansible_become=false ## Variable at host level -- HOSTVARS
+
+[ubuntu:vars]           ## variable for 'ubuntu' group -- GROUPVARS
+ansible_become=true
+ansible_port=22
+
+[big_grp:children]     ## variable for 'big_grp' group -- GROUPVARS
+centos
+ubuntu
+
+[big_grp:vars]
+ansible_port=1234
+
+[all:vars]             ## variable for 'all' group -- GROUPVARS
+ansible_port=1234 
+
+### HOSTVARS has PRECEDENCE over GROUPVARS ALWAYS
