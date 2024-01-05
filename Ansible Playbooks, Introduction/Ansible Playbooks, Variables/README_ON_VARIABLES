@@ -1,0 +1,19 @@
+Go through the playbook it has all the options.
+
+But make sure that the hosts/Inventory file look like this for all the examples to work seamlessly.
+
+
+
+[main]
+rhel-server ansible_connection=local ## Variable at host level -- HOSTVARS
+
+[centos]
+centos1 ansible_port=22
+
+[ubuntu]
+centos2 ansible_become=false
+
+[centos:vars]
+ansible_user=root
+
+## till above is the proper host file for testing out the scenarios in the playbook. Anythig new add below

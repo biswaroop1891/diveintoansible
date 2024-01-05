@@ -1,0 +1,9 @@
+dict:
+      dict_var: dict value
+
+var_item:
+      - item 1
+      - item 2
+      - item 3
+
+var_item_inline: [item 1, item 2, item 3]
