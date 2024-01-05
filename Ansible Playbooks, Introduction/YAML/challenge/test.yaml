@@ -1,0 +1,27 @@
+---
+
+Aston Martin:  # Dictonaries of Dictonaries
+  year_fonded: 1950
+  wbsite: martin.com
+  founded_by: # Dictonary of list
+    - Aston
+    - Martin
+Fiat:
+ year_fonded: 1951
+ wbsite: fiat.com
+ founded_by:
+  - Ratan Tata
+Ford:
+  year_fonded: 1952
+  wbsite: ford.com
+  founded_by: 
+    - Henry Ford
+Vauxhall:
+  year_fonded: 1953
+  wbsite: vauxhall.com
+  founded_by:
+    - East India Company
+
+
+
+...

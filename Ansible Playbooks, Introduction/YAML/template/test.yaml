@@ -1,6 +1,90 @@
 # Every YAML file should start with three dashes
 ---
  
- 
+# no_quote: this is no quote where an escape character is added before the new line marker\n
+# single_quote: 'this is single quote where an escape character is added before the new line marker\n'
+# double_quote: "this is double quoted and no additional esape character is added from YAML end other than the one I provided \n"
+
+# multi_line_1: |
+#   this is a string
+#   over multiple lines
+#   with |
+#   which added new line marker (\n) at the end 
+#   of each line
+
+# multi_line_2: >
+#   this is a string
+#   over multiple lines
+#   with >
+#   which added new line marker (\n) at the end 
+#   of the entire string/text
+
+# multi_line_3: >-
+#   this is a string
+#   over multiple lines
+#   with >-
+#   this does not add
+#   any new line marker (\n) new line 
+#   character
+
+
+# example_int: 1 ## Quoting integer makes this string.
+
+# is_false_01: false
+# is_false_02: False
+# is_false_03: FALSE
+# is_true_01: true
+# is_true_02: True
+# is_true_03: TRUE
+
+# Items in YAML
+# - item 1
+# - item 2
+# - item 3
+# - item 4
+# - item 5
+
+# Dictonary in YAML
+# my_var: "my value"
+
+# Dictonaries of dictonaries, Where other dictonaries are part of another dictonaries
+# example_key1:
+#   sub_example_1: sub_example_value1  ## This is one dictonaries which is part of the example_key1 dictonaries
+
+# # Dictonaries can have Items list --> dictonaries of list
+# example_1:
+#   - item 1
+#   - item 2
+#   - item 3
+
+# List of dictonaries
+
+# example_list_of_dict1:
+# - example_dict1: 
+#   - 1
+#   - 2
+#   - 3
+
+# - example_dict2: 
+#   - 4
+#   - 5
+#   - 6
+
+
+## all the ways you can have. dictonaries, list, dictonaries of dictonaries, dictonaries of list and list of dictonaries
+dict_lev_1:  ## dictonaries of dictonaries
+  sub_dict_lev_2: this is dict level 2. sub value. dict of dict  ## dictonary
+  sub_dict_lev_3: valkue 2
+  sub_dict_lev_4:     ## dictonaries of list 
+    - item1: value1
+    - item2: value2
+    - item_dict_1:  ## list of dictonaries
+        - item_dict_1_sub_value: 
+            - item_var: value12
+            - item_var2: value13
+        - item_dict_1_sub_value:
+            - item_var: value14
+
+
 # Every YAML file should end with three dots
 ...
