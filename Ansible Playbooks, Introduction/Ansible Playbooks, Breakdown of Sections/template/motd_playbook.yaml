@@ -5,16 +5,49 @@
 # of plays, with each play being a dictionary
 -
 
-  # Hosts: where our play will run and options it will run with
+# Hosts: where our play will run and options it will run with
+  hosts: linux ## this part is called the host/target section and we can define few other things from a long list of things.
+  # user: root --> can define override parameters here. which will override the Inventory file.
+  # become:
+  gather_facts: True  ## Default for gather_facts is True
+  # connection:
 
-  # Vars: variables that will apply to the play, on all target systems
+# Vars: variables that will apply to the play, on all target systems
+  vars:
+    motd_centos1: "Welcome to Centos Server 1. Updated from Ansible.\n"
+    motd_centos2: "Welcome to Centos Server 2. Updated from Ansible.\n"
 
-  # Tasks: the list of tasks that will be executed within the play, this section
-  #       can also be used for pre and post tasks
+# Tasks: the list of tasks that will be executed within the play, this section
+#        can also be used for pre and post tasks
+  tasks:
+    - name: MOTD update centos1
+      copy:
+        content: "{{ motd_centos1 }}"
+        dest: /etc/motd
+      when: ansible_hostname == "centos1"
+      notify: MOTD changed centos1 ## Calling the handler with the name defined here.
 
-  # Handlers: the list of handlers that are executed as a notify key from a task
+    - name: MOTD update centos2 
+      copy:
+        content: "{{ motd_centos2 }}"
+        dest: /etc/motd
+      when: ansible_hostname == "centos2"
+      notify: MOTD changed centos2 ## Calling the handler with the name defined here.
 
-  # Roles: list of roles to be imported into the play
+# Handlers: the list of handlers that are executed only when a task is performed and the state is changed.
+#           handlers have same syntax as tasks.
+  handlers:
+    - name: MOTD changed centos1  ## A handler with same name has to be there to work.
+      ansible.builtin.debug:
+        msg: The MOTD task has changed successfully on centos1.
+    
+    - name: MOTD changed centos2 ## A handler with same name has to be there to work.
+      ansible.builtin.debug:
+        msg: The MOTD task has changed successfully on centos2.
+
+
+# Roles: list of roles to be imported into the play
+
 
 # Three dots indicate the end of a YAML document
 ...

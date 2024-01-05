@@ -1,0 +1,39 @@
+This was section 17 of the Udemy Ansible course by James Spurin.
+
+Section: 4 Slide 12
+
+
+Learned the basic structure of an Ansible playbook. The sections it has; host, vars, tasks, handlers and roles.
+Didn't get into roles but covered the rest of the sections.
+
+In the host/target section and we can define playbook keywords. These are bsically variables which override the variables we define in the Inventory file.
+Not all variables are available in The Inventory file. But he ones which are present in the Inventory file will be overridden.
+
+vars: In this section we define variables. however we want.
+      To call vaiables use "{{ variable_name }}"
+
+Task section we define the task we want to run. basically the things we want to run, we want to do.
+We can call handlers to notify us about a task status if that ran with a change or not. 
+We can call handlers using 'notify' and a handler name the handler name has to be the same the one we define the handler with.
+
+Handlers: the list of handlers that are executed only when a task is performed and the state is changed. 
+THEY DONT RUN WHEN THE TASK DONT RUN OR STATE IS SAME
+A handler with same name has to be there to work.
+
+===============
+- name: MOTD update centos2 
+      copy:
+        content: "{{ motd_centos2 }}"
+        dest: /etc/motd
+      when: ansible_hostname == "centos2"
+      notify: MOTD changed centos2 ## Calling the handler with the name defined here.
+
+# Handlers: the list of handlers that are executed only when a task is performed and the state is changed.
+#           handlers have same syntax as tasks.
+  handlers:
+    - name: MOTD changed centos1  ## A handler with same name has to be there to work.
+      ansible.builtin.debug:
+        msg: The MOTD task has changed successfully on centos1.
+===============
+
+CHECK THE PLAYBOOK IN THIS PATH WHERE THIS README IS.
