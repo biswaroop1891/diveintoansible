@@ -1,0 +1,7 @@
+Go through the jinja2_playbook.yaml Playbook you will get all the things related to jinja2 templating.
+
+I mainly went through IF-ELSE and FOR LOOP.
+
+And how to copy template files to have value based on certain conditions using Jinja2
+
+will dive more if needed. 

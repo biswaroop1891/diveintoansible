@@ -1,0 +1,87 @@
+--== Ansible Jinja2 if statement ==--
+
+{# If the hostname is rhel-server, include a message -#}
+{% if ansible_hostname == "rhel-server" -%}
+      This is rhel-server
+{% endif %}
+
+--== Ansible Jinja2 if elif statement ==--
+
+{% if ansible_hostname == "rhel-server" -%}
+   This is rhel-server
+{% elif ansible_hostname == "centos1" -%}
+   This is centos1
+{% endif %}
+
+--== Ansible Jinja2 if elif else statement ==--
+
+{% if ansible_hostname == "rhel-server" -%}
+   This is rhel-server
+{% elif ansible_hostname == "centos1" -%}
+   This is centos1
+{% else -%}
+   This is good old {{ ansible_hostname }}
+{% endif %}
+
+--== Ansible Jinja2 if variable is defined ( where variable is not defined ) ==--
+
+{% if example_variable is defined -%}
+   example_variable is defined
+{% else -%}
+   example_variable is not defined
+{% endif %}
+
+--== Ansible Jinja2 if varible is defined ( where variable is defined ) ==--
+
+{% set example_variable = 'some value' -%}
+{% if example_variable is defined -%}
+   example_variable is defined
+{% else -%}
+   example_variable is not defined
+{% endif %}
+
+--== Ansible Jinja2 for statement ==--
+
+{% for entry in ansible_all_ipv4_addresses -%}
+   IP Address entry {{ loop.index }} = {{ entry }}
+{% endfor %}
+
+--== Ansible Jinja2 for range
+
+{% for entry in range(1, 11) -%}
+   {{ entry }}
+{% endfor %}
+
+{% for entry in range(1, 11, +2) -%}
+   {{ entry }}
+{% endfor %}
+
+{% for entry in range(10, 0, -1) -%}
+   {{ entry }}
+{% endfor %}
+
+---=== Ansible Jinja2 filters ===---
+
+--== min [1, 2, 3, 4, 5] ==--
+
+{{ [1, 2, 3, 4, 5] | min }}
+
+--== max [1, 2, 3, 4, 5] ==--
+
+{{ [1, 2, 3, 4, 5] | max }}
+
+--== unique [1, 1, 2, 2, 3, 3, 4, 4, 5, 5] ==--
+
+{{ [1, 1, 2, 2, 3, 3, 4, 4, 5, 5] | unique }}
+
+--== difference [1, 2, 3, 4, 5] vs [2, 3, 4] ==--
+
+{{ [1, 2, 3, 4, 5] | difference([2, 3, 4]) }}
+
+--== random ['rod', 'jane', 'freddy'] ==--
+
+{{ ['rod', 'jane', 'freddy'] | random }}
+
+--== urlsplit hostname ==--
+
+{{ "http://docs.ansible.com/ansible/latest/playbooks_filters.html" | urlsplit('hostname') }}

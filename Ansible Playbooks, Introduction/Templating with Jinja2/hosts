@@ -1,0 +1,9 @@
+[main]
+rhel-server ansible_connection=local ## Variable at host level -- HOSTVARS
+
+[centos]
+centos1  ansible_user=root
+
+[ubuntu]
+centos2 ansible_become=false
+

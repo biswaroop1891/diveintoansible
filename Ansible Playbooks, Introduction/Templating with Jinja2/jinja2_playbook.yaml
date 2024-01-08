@@ -1,0 +1,72 @@
+---
+
+- name: Jinja2 template examples
+
+  hosts: all
+
+  tasks:
+    - name: copying template file  ## Real world example is more like this.
+      template:
+            src: sample_template.j2
+            dest: "/tmp/sample_file.txt"
+            mode: 0644
+            owner: ansible
+            #trim_blocks: true
+
+## all things might not work when uncommented. Might need to comment certain things to have it work out.
+      
+    - name: Jinja2 template examples
+      debug:
+        msg: 
+            Learning IF-ELSE Jinja2 Syntax --> 
+            {# This is a comment -#}
+            {#And this is also a comment#} 
+
+            {% if ansible_hostname == "rhel-server" %}
+            I am in rhel-server --> Spacing dont matter. THIS WORKS
+
+            {% elif ansible_hostname == "centos1" %}
+            
+            I am in centos1. --> So DOES THIS
+
+            {% else %}
+                  
+                  I am the catch all statement ELSE. --> AND SO DO THIS
+            
+            {% endif %}
+            
+            Learning to SET a variable and then then check if the variable is set or not -->
+            {% set some_var = 'some_val' %}
+            {#have to give the space in = also the single quotes or else will not work#}
+            {% if some_var is defined -%} 
+            {#"Defined" is a keyword if IF to check if varibles is defined or#}
+            The variable some_var is defined. 
+            {% else -%}
+            The variable some_var is not defined.
+            {% endif %}
+
+            Learning FOR LOOPS in Jinja2
+            {% set i = '[ten, eleven]' %}
+            {% for i in i %}
+                 {{ i }}
+            {% endfor %}
+
+            Learning FOR LOOPS in Jinja2
+            {% set i = [10, 11, 12, 13] %}
+            {% for i in i -%}
+                 {{ i }}
+            {% endfor %}
+
+            Learning FOR LOOPS in Jinja2
+            {% for i in range(1, 11, +2) -%} 
+            {# Actual range is 1 to n-1 --> so 1 to n=11 ie) 1 to 11-1 = 10. +2 is the factor which gives the loop gap -#}
+                 {{ i }}
+            {% endfor %}
+
+            Learning FOR LOOPS in Jinja2
+            {% for i in range(10, 1, -1) -%} 
+            {# Actual range till n+1. -1 is the factor which gives the loop gap -#}
+                 {{ i }}
+            {% endfor %}
+
+...
