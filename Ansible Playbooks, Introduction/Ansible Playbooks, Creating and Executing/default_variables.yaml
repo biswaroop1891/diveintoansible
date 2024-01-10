@@ -1,0 +1,14 @@
+---
+
+NON_SSL_PORT: "80"
+SSL_PORT: "443"
+APACHE_USER: "ansible"
+APACHE_GROUP: "ansible"
+SERVER_ADMIN: "gublu@admin.com"
+SERVER_NAME: "mycustomapache.com"
+SERVER_ALIAS: "mycustomalias.com"
+DOC_ROOT: "/opt/software/httpd/htdocs"
+ENABLE_SSL: "True"
+REDIRECTION: "False"
+
+...

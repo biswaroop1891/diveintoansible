@@ -1,0 +1,45 @@
+Listen {{ ansible_all_ipv4_addresses[1] }}:{{ SSL_PORT }}
+
+<VirtualHost *:{{ SSL_PORT }}>
+
+        ServerAdmin {{ SERVER_ADMIN }}
+
+        ServerName {{ SERVER_NAME }}
+        {% if SERVER_ALIAS is defined -%}
+        ServerAlias {{ SERVER_ALIAS }} ## add only if the variable is defined
+        {% endif %}
+
+        DocumentRoot "{{ DOC_ROOT }}"
+        <Directory "{{ DOC_ROOT }}">
+                Options Indexes FollowSymLinks
+                AllowOverride All
+                Require all granted
+        </Directory>
+
+        SSLEngine on
+        SSLProtocol all -SSLv3 -TLSv1 -TLSv1.1 
+
+        SSLCipherSuite ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256
+        SSLHonorCipherOrder on
+        SSLCompression      off
+        SSLSessionTickets   off
+
+        SSLCertificateFile "/opt/software/httpd/conf.d/certs/{{ SERVER_NAME }}.crt"
+        SSLCertificateKeyFile "/opt/software/httpd/conf.d/certs/{{ SERVER_NAME }}.key"
+
+        ErrorLog /opt/software/httpd/logs/error.log
+
+        <IfModule log_config_module>
+
+            LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" combined
+            LogFormat "%h %l %u %t \"%r\" %>s %b" common
+            CustomLog "/opt/software/httpd/logs/access_log" combined
+
+        </IfModule>
+            
+        <IfModule mod_dir.c>
+                DirectoryIndex  index.html index.php index.pl index.cgi index.xhtml index.htm
+        </IfModule>
+
+
+</VirtualHost>

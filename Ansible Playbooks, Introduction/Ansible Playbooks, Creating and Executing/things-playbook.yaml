@@ -1,0 +1,31 @@
+
+- name: Testing different bit of codes
+  hosts: main
+
+  vars_files:
+    - default_variables.yaml
+
+  tasks:
+
+    - name: testing things
+      stat:
+        path: "{{ item  }}"
+      register: apache_binary
+      loop: 
+        - /root/anaconda-ks.cfg
+        - /root/epel-next-release-latest-9.noarch.rpm
+        - /root/epel-release-latest-9.noarch.rpm
+    
+    - name: printing things
+      ansible.builtin.debug:
+        msg:  All exists
+      when: apache_binary.results.0.stat.exists and apache_binary.results.1.stat.exists and apache_binary.results.2.stat.exists
+      register: test_result
+    
+    - name: printing things
+      ansible.builtin.debug:
+        msg:  "{{ test_result }}"
+
+    
+
+

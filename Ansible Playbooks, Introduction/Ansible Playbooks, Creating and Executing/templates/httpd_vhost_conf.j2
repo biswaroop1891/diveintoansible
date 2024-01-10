@@ -1,0 +1,48 @@
+Listen {{ ansible_all_ipv4_addresses[1] }}:{{ NON_SSL_PORT }}
+
+<VirtualHost *:{{ NON_SSL_PORT }}>
+
+    ServerAdmin {{ SERVER_ADMIN }}
+
+    ServerName {{ SERVER_NAME }}
+    {% if SERVER_ALIAS is defined -%}
+    ServerAlias {{ SERVER_ALIAS }}              ##add only if the variable is defined
+    {% endif %}
+
+    DocumentRoot "{{ DOC_ROOT }}"
+
+    <Directory "{{ DOC_ROOT }}">
+            Options Indexes FollowSymLinks
+            AllowOverride All
+            Require all granted
+    </Directory>
+
+    ErrorLog /opt/software/httpd/logs/error.log
+
+    <IfModule log_config_module>
+
+        LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" combined
+        LogFormat "%h %l %u %t \"%r\" %>s %b" common
+        CustomLog "/opt/software/httpd/logs/access_log" combined
+
+    </IfModule>
+
+    <IfModule mod_dir.c>
+        DirectoryIndex  index.html index.php index.pl index.cgi index.xhtml index.htm
+    </IfModule>
+
+
+{% if (ENABLE_SSL != "" ) and (ENABLE_SSL == "True") or (ENABLE_SSL == "true") or (ENABLE_SSL == "TRUE") or (ENABLE_SSL == "Yes") or (ENABLE_SSL == "yes") or (ENABLE_SSL == "YES") %} 
+
+    {% if (REDIRECTION != "" ) and (REDIRECTION == "True") or (REDIRECTION == "true") or (REDIRECTION == "TRUE") or (REDIRECTION == "Yes") or (REDIRECTION == "yes") or (REDIRECTION == "YES") %}
+    ## Redirection and SSL both enabled so adding the rewrite ##
+    RewriteEngine On
+    RewriteCond %{HTTPS} !on
+    RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI}
+    {% endif %}
+## Only SSL enabled and no redirection so no rewrite block
+
+{% endif %}
+
+
+</VirtualHost>

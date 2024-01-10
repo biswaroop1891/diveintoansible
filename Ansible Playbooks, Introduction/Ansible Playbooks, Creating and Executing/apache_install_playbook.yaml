@@ -1,0 +1,195 @@
+---
+
+- name: Apache Install play
+
+  hosts: centos2
+
+  vars_files:
+    - default_variables.yaml
+
+  tasks:
+
+    - name: anytesthing
+      debug:
+        msg: "{{ ansible_all_ipv4_addresses[1]}}"
+
+    - name: Installing pre-requisite packages using YUM
+      yum:
+        name: 
+          - telnet
+          - perl-core 
+          - zlib-devel
+          - expat-devel
+          - pcre-devel 
+        state: present
+      become: true
+      become_method: sudo
+      become_user: root  ## ansible_become --> these are varaibles and can be added to the host file or as variables and has the highest precedence. 
+                         ## become is a directove/option which is added at the play or the task level. and has lower precedence than variables.
+      ## In general Ansible precedence list:
+      ## Configuration settings ---> lowest
+      ## Command-line options
+      ## Playbook keywords
+      ## Variables             ---> highest
+
+    ##   https://docs.ansible.com/ansible/devel/reference_appendices/playbooks_keywords.html#task  ##
+        
+    - name: Copying the SSH key from local to remote server for GitHub access
+      copy:
+        src: /home/ansible/.ssh/id_rsa
+        dest: /home/ansible/.ssh/id_rsa
+        mode: 0600
+        owner: ansible
+        group: ansible
+
+    - name: Adding SSH config to enable key for GitHub access
+      copy:
+        content: |    
+          Host github.com
+          IdentityFile ~/.ssh/id_rsa
+          StrictHostKeyChecking no
+        dest: /home/ansible/.ssh/config
+        mode: 0644
+        owner: ansible
+      ## There are 2 other methods of adding multi line dictonary. > which adds \n at the end each new line when merging into a single line.
+      ## The other option >- doesn't add the \n at the end of each new line. but merges all the lines a single line
+
+    - name: Getting Apache installation files from GitHub
+      ansible.builtin.git:
+        repo: git@github.com:biswaroop1891/custom_local_apache_installation.git
+        dest: /tmp/file_from_git/
+    
+    - name: Checking if the directory /tmp/file_from_git/ exists and if its empty or not
+      find: 
+        path: /tmp/file_from_git/
+      register: dwnld_loc
+
+    - name: Giving the downloaded files executable permissions
+      file:
+        path: /tmp/file_from_git/
+        recurse: yes
+        mode: 0755
+        owner: ansible
+        group: ansible
+      when: dwnld_loc.matched
+
+    - name: Installing Apache
+      shell: ./apache_install.sh
+      args:
+        chdir: /tmp/file_from_git/
+        executable: /bin/bash
+      when: dwnld_loc.matched
+
+    - name: Copying the HTTPD configuration file
+      template:
+        src: templates/httpd_conf.j2
+        dest: /opt/software/httpd/conf/httpd.conf
+        mode: 0644
+        owner: ansible
+        group: ansible
+
+    - name: Copying the HTTPD Vhosts file
+      template:
+        src: templates/httpd_vhost_conf.j2
+        dest: /opt/software/httpd/conf.d/httpd-vhosts.conf
+        mode: 0644
+        owner: ansible
+        group: ansible
+
+    - name: Copying the HTTP SSL Vhosts file
+      template:
+        src: templates/httpd_vhost_ssl_conf.j2
+        dest: /opt/software/httpd/conf.d/httpd-ssl-vhosts.conf
+        mode: 0644
+        owner: ansible
+        group: ansible
+      when: (ENABLE_SSL != "" ) and (ENABLE_SSL == "True") or (ENABLE_SSL == "true") or (ENABLE_SSL == "TRUE") or (ENABLE_SSL == "Yes") or (ENABLE_SSL == "yes") or (ENABLE_SSL == "YES")
+
+    - name: Creating the certs directory for the certificates
+      file:
+        path: /opt/software/httpd/conf.d/certs
+        state: directory
+        recurse: yes
+        mode: 0755
+        owner: ansible
+      when: (ENABLE_SSL != "" ) and (ENABLE_SSL == "True") or (ENABLE_SSL == "true") or (ENABLE_SSL == "TRUE") or (ENABLE_SSL == "Yes") or (ENABLE_SSL == "yes") or (ENABLE_SSL == "YES")
+
+    - name: Certs directory present 
+      find: 
+        path: /opt/software/httpd/conf.d/certs
+      register: certs_loc
+
+    - name: Generating the self-signed certs for the SSL 
+      shell: /opt/software/openssl/bin/openssl req -x509 -newkey rsa:4096 -keyout {{ SERVER_NAME }}.key -out {{ SERVER_NAME }}.crt -sha256 -days 3650 -nodes -subj "/C=IN/ST=WB/L=Kolkata/O=GubluTransport/OU=Trucking/CN={{ SERVER_NAME }}"
+      args:
+        chdir: /opt/software/httpd/conf.d/certs
+      when: (ENABLE_SSL != "" ) and certs_loc.matched and (ENABLE_SSL == "True") or (ENABLE_SSL == "true") or (ENABLE_SSL == "TRUE") or (ENABLE_SSL == "Yes") or (ENABLE_SSL == "yes") or (ENABLE_SSL == "YES")
+
+    - name: Copying the index.html file to the "{{ DOC_ROOT }}"
+      template:
+        src: index_html.j2
+        dest: "{{ DOC_ROOT }}/index.html"
+        mode: 0644
+        owner: ansible
+        group: ansible
+
+    - name: Checking is apache is installed
+      stat: 
+        path: /opt/software/httpd/bin/httpd
+      register: httpd_binary
+
+    - name: Creating the HTTPD service script
+      copy: 
+        src: templates/httpd_service.j2
+        dest: /etc/systemd/system/httpd.service
+        mode: 0755
+        owner: root
+        group: root
+      become: true
+      become_method: sudo
+      become_user: root
+      when: apache_binary.stat.exists is true
+
+    - name: Startup script Check
+      stat: 
+        path: /etc/systemd/system/httpd.service
+      register: httpd_startup_script
+
+    - name: Enabling HTTPD service
+      ansible.builtin.service: 
+        name: httpd
+        enabled: yes
+      become: true
+      become_method: sudo
+      become_user: root
+      when: httpd_startup_script.stat.exists
+
+    - name: Starting HTTPD service
+      service: 
+        name: httpd
+        state: restarted
+      become: true
+      become_method: sudo
+      become_user: root
+      when: httpd_startup_script.stat.exists is true
+      notify: Check HTTP Service
+  
+  handlers:
+    - name: Check HTTP Service for {{ SSL_PORT }} port
+      uri:
+        url: https://{{ ansible_all_ipv4_addresses[1] }}:{{ SSL_PORT }}
+        status_code: 200  
+        validate_certs: False
+      when: (ENABLE_SSL != "" ) and (ENABLE_SSL == "True") or (ENABLE_SSL == "true") or (ENABLE_SSL == "TRUE") or (ENABLE_SSL == "Yes") or (ENABLE_SSL == "yes") or (ENABLE_SSL == "YES")
+      listen: Check HTTP Service
+
+    - name: Check HTTP Service for {{ NON_SSL_PORT }} port
+      uri:
+        url: http://{{ ansible_all_ipv4_addresses[1] }}:{{ NON_SSL_PORT }}
+        status_code: 200  
+      listen: Check HTTP Service
+      when: (ENABLE_SSL == "" ) or (ENABLE_SSL == "False") or (ENABLE_SSL == "false") or (ENABLE_SSL == "FALSE") or (ENABLE_SSL == "No") or (ENABLE_SSL == "no") or (ENABLE_SSL == "NO")
+
+
+
+...

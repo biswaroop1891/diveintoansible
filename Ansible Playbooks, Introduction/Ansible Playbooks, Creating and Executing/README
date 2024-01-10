@@ -1,0 +1,6 @@
+
+The playbook install Apache with a custom OpenSSL installation.
+
+This one is withou any sort or roles or other playbook or task inclusion.
+
+Just a single playbook to do all the things.
