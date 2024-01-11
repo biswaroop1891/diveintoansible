@@ -7,24 +7,41 @@
 
   tasks:
 
-    - name: testing things
+    - name: testing
       stat:
-        path: "{{ item  }}"
-      register: apache_binary
-      loop: 
-        - /root/anaconda-ks.cfg
-        - /root/epel-next-release-latest-9.noarch.rpm
-        - /root/epel-release-latest-9.noarch.rpm
+        path: /root/test/file
+      register: my_out
+
+    - name: testing_debug
+      debug:
+        msg: " {{ my_out }}"
+
+    # - name: Copying the HTTPD Vhosts file
+    #   copy:
+    #     src: templates/httpd_vhost_conf.j2
+    #     dest: /opt/software/httpd/conf.d/httpd-vhosts.conf
+    #     mode: 0644
+    #     owner: ansible
+    #     group: ansible
+
+    # - name: testing things
+    #   stat:
+    #     path: "{{ item  }}"
+    #   register: apache_binary
+    #   loop: 
+    #     - /root/anaconda-ks.cfg
+    #     - /root/epel-next-release-latest-9.noarch.rpm
+    #     - /root/epel-release-latest-9.noarch.rpm
     
-    - name: printing things
-      ansible.builtin.debug:
-        msg:  All exists
-      when: apache_binary.results.0.stat.exists and apache_binary.results.1.stat.exists and apache_binary.results.2.stat.exists
-      register: test_result
+    # - name: printing things
+    #   ansible.builtin.debug:
+    #     msg:  All exists
+    #   when: apache_binary.results.0.stat.exists and apache_binary.results.1.stat.exists and apache_binary.results.2.stat.exists
+    #   register: test_result
     
-    - name: printing things
-      ansible.builtin.debug:
-        msg:  "{{ test_result }}"
+    # - name: printing things
+    #   ansible.builtin.debug:
+    #     msg:  "{{ test_result }}"
 
     
 

@@ -38,9 +38,9 @@ Listen {{ ansible_all_ipv4_addresses[1] }}:{{ NON_SSL_PORT }}
     ## Redirection and SSL both enabled so adding the rewrite ##
     RewriteEngine On
     RewriteCond %{HTTPS} !on
-    RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI}
+    RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI}:{{ SSL_PORT }}
     {% endif %}
-## Only SSL enabled and no redirection so no rewrite block
+
 
 {% endif %}
 

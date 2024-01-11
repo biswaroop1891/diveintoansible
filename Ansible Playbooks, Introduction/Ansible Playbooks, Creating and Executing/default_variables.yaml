@@ -9,6 +9,6 @@ SERVER_NAME: "mycustomapache.com"
 SERVER_ALIAS: "mycustomalias.com"
 DOC_ROOT: "/opt/software/httpd/htdocs"
 ENABLE_SSL: "True"
-REDIRECTION: "False"
+REDIRECTION: "True"
 
 ...

@@ -9,11 +9,21 @@
 	</head>
 	<body>
 		<div>
-			<h1>Hello world! from {{ ansible_all_ipv4_addresses[1] }}:{{ ansible_hostname }}</h1>
+		<h1>
+			{% if (ENABLE_SSL != "" ) and (ENABLE_SSL == "True") or (ENABLE_SSL == "true") or (ENABLE_SSL == "TRUE") or (ENABLE_SSL == "Yes") or (ENABLE_SSL == "yes") or (ENABLE_SSL == "YES")  %}
+			Hello world! I am {{ ansible_hostname }} with ---> {{ ansible_all_ipv4_addresses[1] }}:{{ SSL_PORT }} 
+			{% elif (ENABLE_SSL == "" ) or (ENABLE_SSL == "False") or (ENABLE_SSL == "false") or (ENABLE_SSL == "FALSE") or (ENABLE_SSL == "No") or (ENABLE_SSL == "no") or (ENABLE_SSL == "NO") %}
+			Hello world! I am {{ ansible_hostname }} with ---> {{ ansible_all_ipv4_addresses[1] }}:{{ NON_SSL_PORT }} 
+			{% endif %}
+		</h1>
 
-            {% if ENABLE_SSL is defined %}
-            {#this block gets added when ssl is enabled (ENABLE_SSL ??)#}
-            <p>I have SSL enabled</p>
+		{% if (ENABLE_SSL != "" ) and (ENABLE_SSL == "True") or (ENABLE_SSL == "true") or (ENABLE_SSL == "TRUE") or (ENABLE_SSL == "Yes") or (ENABLE_SSL == "yes") or (ENABLE_SSL == "YES")  %}
+		{#this block gets added when ssl is enabled (ENABLE_SSL ??)#}
+		<p>I have SSL enabled on port {{ SSL_PORT }} and the Non_SSL port is {{ NON_SSL_PORT }}</p>
+
+		{% elif (ENABLE_SSL == "" ) or (ENABLE_SSL == "False") or (ENABLE_SSL == "false") or (ENABLE_SSL == "FALSE") or (ENABLE_SSL == "No") or (ENABLE_SSL == "no") or (ENABLE_SSL == "NO") %}
+		<p>I do not have SSL enabled</p>
+
             {% endif %}
 		</div>
 	</body>

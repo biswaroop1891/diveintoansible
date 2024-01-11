@@ -2,7 +2,7 @@
 
 - name: Apache Install play
 
-  hosts: centos2
+  hosts: centos1
 
   vars_files:
     - default_variables.yaml
@@ -57,16 +57,16 @@
     - name: Getting Apache installation files from GitHub
       ansible.builtin.git:
         repo: git@github.com:biswaroop1891/custom_local_apache_installation.git
-        dest: /tmp/file_from_git/
+        dest: /tmp/setup_files_from_git/
     
-    - name: Checking if the directory /tmp/file_from_git/ exists and if its empty or not
+    - name: Checking if the directory /tmp/setup_files_from_git/ exists and if its empty or not
       find: 
-        path: /tmp/file_from_git/
+        path: /tmp/setup_files_from_git/
       register: dwnld_loc
 
     - name: Giving the downloaded files executable permissions
       file:
-        path: /tmp/file_from_git/
+        path: /tmp/setup_files_from_git/
         recurse: yes
         mode: 0755
         owner: ansible
@@ -74,11 +74,18 @@
       when: dwnld_loc.matched
 
     - name: Installing Apache
-      shell: ./apache_install.sh
+      shell: ./apache_install.sh 
       args:
-        chdir: /tmp/file_from_git/
+        chdir: /tmp/setup_files_from_git/
         executable: /bin/bash
+      register: exit_status
+      failed_when: exit_status.rc > 1
       when: dwnld_loc.matched
+    
+    - name: Checking if HTTPD binary is present -- which means Apache is installed
+      stat: 
+        path: /opt/software/httpd/bin/httpd
+      register: httpd_binary
 
     - name: Copying the HTTPD configuration file
       template:
@@ -87,6 +94,15 @@
         mode: 0644
         owner: ansible
         group: ansible
+
+    - name: Creating the conf.d directory to put the relevant configuration files
+      file:
+        path: /opt/software/httpd/conf.d/
+        state: directory
+        mode: 0755
+        owner: ansible
+        group: ansible
+      when: httpd_binary.stat.exists is true
 
     - name: Copying the HTTPD Vhosts file
       template:
@@ -115,7 +131,7 @@
       when: (ENABLE_SSL != "" ) and (ENABLE_SSL == "True") or (ENABLE_SSL == "true") or (ENABLE_SSL == "TRUE") or (ENABLE_SSL == "Yes") or (ENABLE_SSL == "yes") or (ENABLE_SSL == "YES")
 
     - name: Certs directory present 
-      find: 
+      stat: 
         path: /opt/software/httpd/conf.d/certs
       register: certs_loc
 
@@ -123,7 +139,7 @@
       shell: /opt/software/openssl/bin/openssl req -x509 -newkey rsa:4096 -keyout {{ SERVER_NAME }}.key -out {{ SERVER_NAME }}.crt -sha256 -days 3650 -nodes -subj "/C=IN/ST=WB/L=Kolkata/O=GubluTransport/OU=Trucking/CN={{ SERVER_NAME }}"
       args:
         chdir: /opt/software/httpd/conf.d/certs
-      when: (ENABLE_SSL != "" ) and certs_loc.matched and (ENABLE_SSL == "True") or (ENABLE_SSL == "true") or (ENABLE_SSL == "TRUE") or (ENABLE_SSL == "Yes") or (ENABLE_SSL == "yes") or (ENABLE_SSL == "YES")
+      when: certs_loc.stat.exists and certs_loc.stat.isdir and (ENABLE_SSL != "" ) and (ENABLE_SSL == "True") or (ENABLE_SSL == "true") or (ENABLE_SSL == "TRUE") or (ENABLE_SSL == "Yes") or (ENABLE_SSL == "yes") or (ENABLE_SSL == "YES")
 
     - name: Copying the index.html file to the "{{ DOC_ROOT }}"
       template:
@@ -132,11 +148,6 @@
         mode: 0644
         owner: ansible
         group: ansible
-
-    - name: Checking is apache is installed
-      stat: 
-        path: /opt/software/httpd/bin/httpd
-      register: httpd_binary
 
     - name: Creating the HTTPD service script
       copy: 
@@ -148,7 +159,7 @@
       become: true
       become_method: sudo
       become_user: root
-      when: apache_binary.stat.exists is true
+      when: httpd_binary.stat.exists is true
 
     - name: Startup script Check
       stat: 
