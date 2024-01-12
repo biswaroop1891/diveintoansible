@@ -1,0 +1,76 @@
+
+- name: Testing different bit of codes
+  hosts: centos1
+
+  vars_files:
+    - default_variables.yaml
+  vars:
+    test_var: value
+
+  tasks:
+
+      - name: debug var and msg difference
+        debug:
+          msg: "{{ ansible_hostname }}"  ## --> shows variable with jina2 template and also strings
+          #var: test_var  ## --> shows any value already defined. he values written here will be having implicit double interpolation, 
+                         ##     as this option runs in the jinja2 context. So, you don’t need to use jinja2 delimiter
+
+
+      # - name: copy file from remote to local
+      #   fetch:
+      #     src: /etc/redhat-release  ## will get the remote file and copy to the directory: /tmp/<remote_hostname>/<src> ie in this case /tmp/centos1/etc/redhat-release
+      #     dest: /tmp/
+      #     flat: True   ## default is no but to get files without the above folder creations use flat: yes|True --> 
+      #                  ## but in that case if there are many servers then file from all servers overwrite the single file in your local
+ 
+    # - name: setting fact
+    #   set_fact:
+    #     my_fact: Hello World!!
+    
+    # - name: showing fact
+    #   debug:
+    #     msg: "{{ my_fact }}"
+
+    # - name: pause the playbook execution for sewconds or for minutes NOT BOTH
+    #   ansible.builtin.pause:
+    #     seconds: 5
+    #     #minutes: 5
+
+    # - name: Pause until user interruption 
+    #   ansible.builtin.pause:
+
+    # - name: Pause until user interruption but with a prompt
+    #   ansible.builtin.pause:
+    #     prompt: "Make sure org.foo.FooOverload exception is not present"
+
+    # - name: Pause to get some sensitive input echo is no by default. Set to true but only works when seconds or minutes are not set
+    #   ansible.builtin.pause:
+    #     prompt: "Enter a secret"
+    #     echo: no
+    #   register: pause_result
+
+    # - debug:
+    #     msg: "{{ pause_result.user_input }}" ## the variable passed during playbook pause can be registered and called like this.
+
+# - name: new play
+#   hosts: main
+
+#   vars_files:
+#     - default_variables.yaml
+
+#   tasks:
+
+#     - name: showing fact
+#       debug:
+#         msg: "{{ my_fact }}"
+
+# set_fact: 
+
+# This action allows setting variables associated to the current host. 
+# These variables will be available to subsequent plays during an ansible-playbook run via the host they were set on.
+# Has higer precedence that  host level varibles or variables set at the task level.
+
+# Check this variable precedence list of ansible. https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_variables.html
+    
+
+

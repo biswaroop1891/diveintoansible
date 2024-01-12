@@ -2,7 +2,7 @@
 
 - name: Apache Install play
 
-  hosts: centos1
+  hosts: web
 
   vars_files:
     - default_variables.yaml
@@ -86,6 +86,23 @@
       stat: 
         path: /opt/software/httpd/bin/httpd
       register: httpd_binary
+
+    ## JUST AN EXAMPLE OF STAT TO CHECK MULTIPLE FILES
+    # - name: testing things
+    #   stat:
+    #     path: "{{ item  }}"
+    #   register: apache_binary
+    #   loop: 
+    #     - /root/anaconda-ks.cfg
+    #     - /root/epel-next-release-latest-9.noarch.rpm
+    #     - /root/epel-release-latest-9.noarch.rpm
+    
+    # - name: printing things
+    #   ansible.builtin.debug:
+    #     msg:  All exists
+    #   when: apache_binary.results.0.stat.exists and apache_binary.results.1.stat.exists and apache_binary.results.2.stat.exists
+    #   register: test_result
+    
 
     - name: Copying the HTTPD configuration file
       template:
