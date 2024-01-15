@@ -1,0 +1,152 @@
+- name: Looping
+  hosts: main
+
+  vars:
+    list_var:
+      - A
+      - B
+      - C
+    some_var: # its a dictionary
+      env: dev
+      app: payment
+      owner: ambani
+
+
+  tasks:
+
+    - name: loop var              ## Simple example of loop var.
+      debug:
+        msg: "{{ someval }}"
+      loop:
+        - 1
+        - 2
+        - 3
+      loop_control:
+        loop_var: someval  
+
+    # You can nest two looping tasks using include_tasks. However, by default, Ansible sets the loop variable item for each loop. 
+    # This means the inner, nested loop will overwrite the value of item from the outer loop. 
+    # You can specify the name of the variable for each loop using loop_var with loop_control.
+    
+    # - include_tasks: inner.yaml ## Actual use case of loop var -- Read the above --> Can have only 2 nested loops
+    #   loop:
+    #     - 1
+    #     - 2
+    #     - 3
+    #   loop_control:
+    #     loop_var: outer_item  
+
+
+      # - name: basic loop where loop is defined here
+      #   debug:
+      #     msg: "{{ item }}"
+      #   loop: 
+      #     - 1
+      #     - 2
+      #     - 3
+
+      # - name: basic loop where loop is defined as a var
+      #   debug:
+      #     msg: "{{ item }}"
+      #   loop: "{{ list_var }}"
+
+      # - name: basic loop but with a dectionary. here we switch the dictionary to a list
+      #   debug:
+      #     msg: "{{ item }}"
+      #   loop: "{{ some_var | dict2items }}"
+
+      # - name: same as above but accessing each item now after converting using dict2items
+      #   debug:
+      #     msg: "{{ item.key }} --> {{ item.value }}"
+      #   loop: "{{ some_var | dict2items }}"
+
+      # - name: Register loop output as a variable    ## DIDN"T UNDERSTAND THIS MUCH
+      #   ansible.builtin.shell: "echo {{ item }}"
+      #   loop:
+      #     - "one"
+      #     - "two"
+      #   register: my_out
+      
+      # - debug:
+      #     msg: "{{ item.cmd }}"
+
+
+
+# Migrating from with_X to loop
+
+# with_list is directly replaced by loop.
+# - name: with_list
+#   ansible.builtin.debug:
+#     msg: "{{ item }}"
+#   with_list:
+#     - one
+#     - two
+
+# - name: with_list -> loop
+#   ansible.builtin.debug:
+#     msg: "{{ item }}"
+#   loop:
+#     - one
+#     - two
+
+# ####
+
+# with_items is replaced by loop and the flatten filter.
+# - name: with_items
+#   ansible.builtin.debug:
+#     msg: "{{ item }}"
+#   with_items: "{{ items }}"
+
+# - name: with_items -> loop
+#   ansible.builtin.debug:
+#     msg: "{{ item }}"
+#   loop: "{{ items|flatten(levels=1) }}"
+
+# #####
+
+# with_together is replaced by loop and the zip filter.
+# - name: with_together
+#   ansible.builtin.debug:
+#     msg: "{{ item.0 }} - {{ item.1 }}"
+#   with_together:
+#     - "{{ list_one }}"
+#     - "{{ list_two }}"
+
+# - name: with_together -> loop
+#   ansible.builtin.debug:
+#     msg: "{{ item.0 }} - {{ item.1 }}"
+#   loop: "{{ list_one|zip(list_two)|list }}"
+
+# ####
+
+
+# with_dict can be substituted by loop and either the dictsort or dict2items filters.
+# - name: with_dict
+#   ansible.builtin.debug:
+#     msg: "{{ item.key }} - {{ item.value }}"
+#   with_dict: "{{ dictionary }}"
+
+# - name: with_dict -> loop (option 1)
+#   ansible.builtin.debug:
+#     msg: "{{ item.key }} - {{ item.value }}"
+#   loop: "{{ dictionary|dict2items }}"
+
+# - name: with_dict -> loop (option 2)
+#   ansible.builtin.debug:
+#     msg: "{{ item.0 }} - {{ item.1 }}"
+#   loop: "{{ dictionary|dictsort }}"
+
+# ####
+
+# with_nested and with_cartesian are replaced by loop and the product filter.
+# - name: with_nested
+#   ansible.builtin.debug:
+#     msg: "{{ item.0 }} - {{ item.1 }}"
+#   with_nested:
+#     - "{{ list_one }}"
+#     - "{{ list_two }}"
+
+# - name: with_nested -> loop
+#   ansible.builtin.debug:
+#     msg: "{{ item.0 }} - {{ item.1 }}"
+#   loop: "{{ list_one|product(list_two)|list }}"

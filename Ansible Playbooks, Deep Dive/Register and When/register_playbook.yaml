@@ -1,0 +1,12 @@
+- name: Resgiter and When
+  hosts: main
+
+  tasks:
+
+    - name: testig register
+      command: hostname -s
+      register: hostname_output      
+    
+    - name: showing the registered variable
+      debug:
+        var: hostname_output.stdout
